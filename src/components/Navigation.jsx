@@ -1,11 +1,24 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
-
-import { navigation } from '@/lib/navigation'
+import { useState, useEffect } from 'react'
 
 export function Navigation({ className, onLinkClick }) {
   let pathname = usePathname()
+  const [navigation, setNavigation] = useState([])
+
+  useEffect(() => {
+    fetch('/api/navigation')
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error('Error fetching navigation:', data.error)
+        } else {
+          setNavigation(data)
+        }
+      })
+      .catch(err => console.error('Fetch error:', err))
+  }, [])
 
   return (
     <nav className={clsx('text-base lg:text-sm', className)}>
