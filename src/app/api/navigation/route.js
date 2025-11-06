@@ -38,9 +38,9 @@ export async function GET() {
           title: block.heading_1.rich_text.map(rt => rt.plain_text).join('') || '',
           links: []
         }
-      } else if (block.type === 'heading_2') {
+      } else if (block.type === 'heading_2' || block.type === 'heading_3') {
         if (currentSection) {
-          const title = block.heading_2.rich_text.map(rt => rt.plain_text).join('') || ''
+          const title = block[block.type].rich_text.map(rt => rt.plain_text).join('') || ''
           const href = '/docs/' + encodeURIComponent(block.id)
           currentSection.links.push({ title, href })
         }

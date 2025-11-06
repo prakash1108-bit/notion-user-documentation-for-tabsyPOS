@@ -37,19 +37,19 @@ export async function GET(request, { params }) {
     // Fetch all blocks recursively
     const blocks = await fetchBlockChildren(notion, pageId)
 
-    // Find the index of the heading_2 with the matching id
-    const targetIndex = blocks.findIndex(block => block.id === decodedSlug)
-    if (targetIndex === -1 || blocks[targetIndex].type !== 'heading_2') {
+    // Find the index of the heading_2 or heading_3 with the matching id
+    const targetIndex = blocks.findIndex(block => (block.type === 'heading_2' || block.type === 'heading_3') && block.id === decodedSlug)
+    if (targetIndex === -1 || !(blocks[targetIndex].type === 'heading_2' || blocks[targetIndex].type === 'heading_3')) {
       return Response.json({ error: 'Block not found' }, { status: 404 })
     }
 
-    const title = blocks[targetIndex].heading_2.rich_text.map(rt => rt.plain_text).join('')
+    const title = blocks[targetIndex][blocks[targetIndex].type].rich_text.map(rt => rt.plain_text).join('')
 
-    // Collect blocks from the next one until the next heading_1 or heading_2
+    // Collect blocks from the next one until the next heading_1, heading_2, or heading_3
     let contentBlocks = []
     for (let i = targetIndex + 1; i < blocks.length; i++) {
       const block = blocks[i]
-      if (block.type === 'heading_1' || block.type === 'heading_2') {
+      if (block.type === 'heading_1' || block.type === 'heading_2' || block.type === 'heading_3') {
         break
       }
       contentBlocks.push(block)

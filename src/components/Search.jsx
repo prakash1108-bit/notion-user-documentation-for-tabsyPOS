@@ -16,8 +16,6 @@ import { createAutocomplete } from '@algolia/autocomplete-core'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import clsx from 'clsx'
 
-import { navigation } from '@/lib/navigation'
-
 function SearchIcon(props) {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" {...props}>
@@ -61,20 +59,19 @@ function useAutocomplete({ close }) {
         navigate,
       },
       getSources({ query }) {
-        return import('@/markdoc/search.mjs').then(({ search }) => {
-          return [
-            {
-              sourceId: 'documentation',
-              getItems() {
-                return search(query, { limit: 5 })
-              },
-              getItemUrl({ item }) {
-                return item.url
-              },
-              onSelect: navigate,
+        if (!query) return Promise.resolve([])
+        return fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`)
+          .then(res => res.json())
+          .then(results => [{
+            sourceId: 'documentation',
+            getItems() {
+              return results
             },
-          ]
-        })
+            getItemUrl({ item }) {
+              return item.url
+            },
+            onSelect: navigate,
+          }])
       },
     }),
   )
@@ -125,9 +122,7 @@ function HighlightQuery({ text, query }) {
 function SearchResult({ result, autocomplete, collection, query }) {
   let id = useId()
 
-  let sectionTitle = navigation.find((section) =>
-    section.links.find((link) => link.href === result.url.split('#')[0]),
-  )?.title
+  let sectionTitle = result.sectionTitle
   let hierarchy = [sectionTitle, result.pageTitle].filter(
     (x) => typeof x === 'string',
   )
