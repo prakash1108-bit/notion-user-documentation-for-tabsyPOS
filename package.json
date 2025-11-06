@@ -2,11 +2,13 @@
   "name": "tailwind-plus-syntax",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "fetch-notion": "node scripts/fetch-notion.js"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
