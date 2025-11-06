@@ -1,5 +1,32 @@
 import { Client } from '@notionhq/client'
 
+async function fetchBlockChildren(notion, blockId) {
+  let allBlocks = []
+  let cursor = undefined
+  let hasMore = true
+
+  while (hasMore) {
+    const response = await notion.blocks.children.list({
+      block_id: blockId,
+      start_cursor: cursor,
+    })
+    allBlocks = allBlocks.concat(response.results)
+    cursor = response.next_cursor
+    hasMore = response.has_more
+  }
+
+  // Recursively fetch children for blocks that might contain nested content
+  for (let i = 0; i < allBlocks.length; i++) {
+    const block = allBlocks[i]
+    if (block.has_children) {
+      const children = await fetchBlockChildren(notion, block.id)
+      block.children = children
+    }
+  }
+
+  return allBlocks
+}
+
 export async function GET(request, { params }) {
   const { slug } = params
   const decodedSlug = decodeURIComponent(slug)
@@ -7,22 +34,8 @@ export async function GET(request, { params }) {
   const pageId = process.env.NOTION_PAGE_ID
 
   try {
-    // Fetch all blocks from the page
-    let allBlocks = []
-    let cursor = undefined
-    let hasMore = true
-
-    while (hasMore) {
-      const response = await notion.blocks.children.list({
-        block_id: pageId,
-        start_cursor: cursor,
-      })
-      allBlocks = allBlocks.concat(response.results)
-      cursor = response.next_cursor
-      hasMore = response.has_more
-    }
-
-    const blocks = allBlocks
+    // Fetch all blocks recursively
+    const blocks = await fetchBlockChildren(notion, pageId)
 
     // Find the index of the heading_2 with the matching id
     const targetIndex = blocks.findIndex(block => block.id === decodedSlug)
@@ -42,10 +55,35 @@ export async function GET(request, { params }) {
       contentBlocks.push(block)
     }
 
-    let content = ''
-    for (const block of contentBlocks) {
-      content += blockToMarkdown(block) + '\n'
+    // For image blocks with Notion-hosted files, refresh the URLs
+    async function refreshImageUrls(blocks) {
+      for (const block of blocks) {
+        if (block.type === 'image' && block.image.type === 'file') {
+          try {
+            const response = await notion.blocks.retrieve({ block_id: block.id })
+            block.image.file.url = response.image.file.url
+          } catch (error) {
+            console.error('Error refreshing image URL:', error)
+          }
+        }
+        if (block.children) {
+          await refreshImageUrls(block.children)
+        }
+      }
     }
+
+    await refreshImageUrls(contentBlocks)
+
+    let content = ''
+    function processBlocks(blocks) {
+      for (const block of blocks) {
+        content += blockToMarkdown(block)
+        if (block.children) {
+          processBlocks(block.children)
+        }
+      }
+    }
+    processBlocks(contentBlocks)
 
     return Response.json({ 
       title, 
@@ -94,6 +132,14 @@ function blockToMarkdown(block) {
     case 'callout':
       const emoji = block.callout.icon?.emoji || '';
       return `{% callout type="note" %}\n${emoji} ${formatRichText(block.callout.rich_text)}\n{% /callout %}\n\n`;
+    case 'image':
+      const imageUrl = block.image.type === 'external' 
+        ? block.image.external.url 
+        : block.image.file.url;
+      const caption = block.image.caption 
+        ? formatRichText(block.image.caption) 
+        : 'Image';
+      return `![${caption}](${imageUrl})\n\n`;
     case 'toggle':
       return `<details>\n<summary>${formatRichText(block.toggle.rich_text)}</summary>\n\n</details>\n\n`;
     default:

@@ -29,6 +29,7 @@
     "react-dom": "^19",
     "react-highlight-words": "^0.21.0",
     "react-markdown": "^10.1.0",
+    "react-medium-image-zoom": "^5.4.0",
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "simple-functional-loader": "^1.2.1",

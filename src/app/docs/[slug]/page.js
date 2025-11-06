@@ -6,6 +6,8 @@ import { Prose } from '@/components/Prose'
 import rehypeHighlight from 'rehype-highlight'
 import remarkGfm from 'remark-gfm'
 import { Callout } from '@/components/Callout'
+import Zoom from 'react-medium-image-zoom'
+import 'react-medium-image-zoom/dist/styles.css'
 
 const renderers = {
   h1: ({ node, ...props }) => (
@@ -20,6 +22,19 @@ const renderers = {
   callout: ({ children, type }) => (
     <Callout type={type}>{children}</Callout>
   ),
+  img: ({ src, alt, ...props }) => {
+    const ZoomWrapper = () => (
+      <Zoom>
+        <img 
+          src={src}
+          alt={alt || ''}
+          className="my-4 rounded-lg shadow-lg"
+          {...props}
+        />
+      </Zoom>
+    )
+    return <div className="my-4"><ZoomWrapper /></div>
+  },
 }
 
 export default function Page({ params }) {
