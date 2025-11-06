@@ -29,4 +29,4 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
-        run: node scripts/fetch-notion.js
+        run: node scripts/fetch-notion.j
