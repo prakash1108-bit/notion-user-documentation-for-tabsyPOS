@@ -14,6 +14,7 @@
     "@headlessui/react": "^2.2.6",
     "@markdoc/markdoc": "^0.5.2",
     "@markdoc/next.js": "^0.5.0",
+    "@notionhq/client": "^5.3.0",
     "@sindresorhus/slugify": "^2.2.1",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/typography": "^0.5.16",
@@ -27,6 +28,9 @@
     "react": "^19",
     "react-dom": "^19",
     "react-highlight-words": "^0.21.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
     "simple-functional-loader": "^1.2.1",
     "tailwindcss": "^4.1.11"
   },
