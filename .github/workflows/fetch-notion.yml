@@ -1,78 +1,43 @@
 name: Fetch Notion Data
 
 on:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pull-requests: write
+  workflow_dispatch:  # Manual trigger from Actions tab
 
 jobs:
   fetch-notion:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Replace this if your branch name changes dynamically
-      - name: Generate or set branch name
-        id: set-branch
-        run: |
-          echo "BRANCH_NAME=update-notion-docs-3" >> $GITHUB_ENV
-
-      - name: Check branch exists on remote
-        id: branch-check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          branch="${{ env.BRANCH_NAME }}"
-          exists=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/git/ref/heads/$branch")
-          if [ "$exists" != "200" ]; then
-            echo "Branch '$branch' not found on remote. The workflow is configured to create PRs only from existing remote branches."
-            echo "branch_exists=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "branch_exists=true" >> $GITHUB_OUTPUT
-
-      - name: Create Pull Request (if branch exists)
-        if: steps.branch-check.outputs.branch_exists == 'true'
-        uses: actions/github-script@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          script: |
-            const branch = process.env.BRANCH_NAME || 'update-notion-docs-3';
-            const base = 'main';
-            const title = `Automated: Update Notion Docs (${branch})`;
-            const body = 'Automated PR to update Notion docs created by workflow.';
+          node-version: '18'
+          cache: 'npm'
 
-            // Check for existing open PRs from the same head
-            const { data: existing } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: 'open'
-            });
+      - name: Install dependencies
+        run: npm ci
 
-            if (existing.length) {
-              core.info(`Open PR already exists: ${existing[0].html_url}`);
-              core.setOutput('pr-url', existing[0].html_url);
-              return;
-            }
+      - name: Run Notion fetcher
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+        run: |
+          mkdir -p scripts
+          mkdir -p src/app/docs
+          node scripts/fetch-notion.js
 
-            try {
-              const res = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title,
-                head: branch,
-                base,
-                body
-              });
-              core.setOutput('pr-url', res.data.html_url);
-              core.info(`PR created: ${res.data.html_url}`);
-            } catch (err) {
-              core.setFailed(`Failed to create PR: ${err.message}`);
-            }
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update docs from Notion"
+          branch: update-notion-docs-${{ github.run_number }}
+          title: "Update Docs from Notion"
+          body: "This PR was automatically created by the Notion fetcher workflow."
+          labels: |
+            automated
+            notion
+          delete-branch: true
