@@ -1,7 +1,7 @@
 name: Fetch Notion Data
 
 on:
-  workflow_dispatch:  # Enables manual trigger from the Actions tab
+  workflow_dispatch:  # Manual trigger from Actions tab
 
 jobs:
   fetch-notion:
@@ -28,3 +28,15 @@ jobs:
           mkdir -p scripts
           mkdir -p src/app/docs
           node scripts/fetch-notion.js
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update docs from Notion"
+          branch: update-notion-docs-${{ github.run_number }}
+          title: "Update Docs from Notion"
+          body: "This PR was automatically created by the Notion fetcher workflow."
+          labels: |
+            automated
+            notion
