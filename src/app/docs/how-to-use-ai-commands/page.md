@@ -12,3 +12,4 @@ You can type commands in a natural, conversational way, for example:
 
 > These commands demonstrate how AI can understand product quantities, multiple items, and optional customer information.
 
+
