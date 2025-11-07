@@ -13,6 +13,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Create and checkout branch (if needed)
+        run: |
+          git fetch origin
+          if ! git branch -r | grep "origin/update-notion-docs-${{ github.run_number }}"; then
+            git checkout -b update-notion-docs-${{ github.run_number }}
+          else
+            git checkout update-notion-docs-${{ github.run_number }}
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
