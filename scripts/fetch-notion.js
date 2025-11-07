@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Client } from '@notionhq/client';
 import fs from 'fs/promises';
 import path from 'path';
@@ -94,6 +95,10 @@ async function processBlocks(blocks) {
   let navigation = [];
   let currentSection = null;
   
+  const cleanMarkdown = (text) => {
+    return text.replace(/\*\*/g, '').replace(/\n/g, ' ').trim();
+  };
+  
   for (const block of blocks) {
     if (block.type === 'heading_1') {
       // Save previous content if exists
@@ -104,13 +109,15 @@ async function processBlocks(blocks) {
       }
       
       if (currentSection) navigation.push(currentSection);
+      
+      const h1Title = formatRichText(block.heading_1.rich_text);
       currentSection = {
-        title: formatRichText(block.heading_1.rich_text),
+        title: cleanMarkdown(h1Title),
         links: []
       };
       
       currentH1 = {
-        title: formatRichText(block.heading_1.rich_text),
+        title: h1Title,
         content: blockToMarkdown(block)
       };
       currentH2 = null;
@@ -122,15 +129,16 @@ async function processBlocks(blocks) {
         await saveContent(currentH2.title, currentH2.content);
       }
       
+      const h2Title = formatRichText(block.heading_2.rich_text);
       if (currentSection) {
         currentSection.links.push({
-          title: formatRichText(block.heading_2.rich_text),
-          href: '/docs/' + slugify(formatRichText(block.heading_2.rich_text))
+          title: cleanMarkdown(h2Title),
+          href: '/docs/' + slugify(cleanMarkdown(h2Title))
         });
       }
       
       currentH2 = {
-        title: formatRichText(block.heading_2.rich_text),
+        title: h2Title,
         content: (currentH1 ? currentH1.content : '') + blockToMarkdown(block)
       };
       currentContent = '';
@@ -183,6 +191,9 @@ async function saveContent(title, content) {
 async function main() {
   try {
     console.log('Fetching Notion data...');
+    console.log(process.env.NOTION_PAGE_ID);
+    console.log(process.env.NOTION_TOKEN);
+    
     const blocks = await fetchBlockChildren(process.env.NOTION_PAGE_ID);
     
     console.log('Processing blocks and creating files...');
