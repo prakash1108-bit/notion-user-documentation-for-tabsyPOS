@@ -83,16 +83,14 @@ export default function withSearch(nextConfig = {}) {
               import FlexSearch from 'flexsearch'
 
               let sectionIndex = new FlexSearch.Document({
-                tokenize: 'full',
+                tokenize: 'forward',
+                optimize: true,
+                resolution: 9,
+                cache: true,
                 document: {
                   id: 'url',
-                  index: 'content',
-                  store: ['title', 'pageTitle'],
-                },
-                context: {
-                  resolution: 9,
-                  depth: 2,
-                  bidirectional: true
+                  index: ['content', 'title'],
+                  store: ['title', 'pageTitle']
                 }
               })
 
@@ -102,7 +100,7 @@ export default function withSearch(nextConfig = {}) {
                 for (let [title, hash, content] of sections) {
                   sectionIndex.add({
                     url: url + (hash ? ('#' + hash) : ''),
-                    title,
+                    title: title || '',
                     content: [title, ...content].join('\\n'),
                     pageTitle: hash ? sections[0][0] : undefined,
                   })
@@ -110,18 +108,43 @@ export default function withSearch(nextConfig = {}) {
               }
 
               export function search(query, options = {}) {
-                let result = sectionIndex.search(query, {
-                  ...options,
+                if (!query) return []
+                
+                const results = []
+                const searchOptions = {
                   enrich: true,
-                })
-                if (result.length === 0) {
-                  return []
+                  limit: 20,
+                  ...options
                 }
-                return result[0].result.map((item) => ({
-                  url: item.id,
-                  title: item.doc.title,
-                  pageTitle: item.doc.pageTitle,
-                }))
+
+                const titleResults = sectionIndex.search(query, {
+                  ...searchOptions,
+                  index: 'title',
+                  boost: 2
+                })
+
+                const contentResults = sectionIndex.search(query, {
+                  ...searchOptions,
+                  index: 'content'
+                })
+
+                // Combine and deduplicate results
+                const seen = new Set()
+                ;[titleResults, contentResults].forEach(resultSet => {
+                  if (!resultSet.length) return
+                  resultSet[0].result.forEach(item => {
+                    if (!seen.has(item.id)) {
+                      seen.add(item.id)
+                      results.push({
+                        url: item.id,
+                        title: item.doc.title,
+                        pageTitle: item.doc.pageTitle,
+                      })
+                    }
+                  })
+                })
+
+                return results
               }
             `
           }),
