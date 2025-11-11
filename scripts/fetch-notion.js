@@ -173,9 +173,10 @@ async function processBlocks(blocks) {
   );
   
   // Save navigation
+  const navigationContent = `export const navigation = ${JSON.stringify(navigation, null, 2)}\n`;
   await fs.writeFile(
-    path.join(process.cwd(), 'src/app/docs/navigation.json'),
-    JSON.stringify(navigation, null, 2)
+    path.join(process.cwd(), 'src/lib/navigation.js'),
+    navigationContent
   );
 }
 
