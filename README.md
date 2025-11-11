@@ -83,15 +83,6 @@ For best results, structure your Notion documentation page as follows:
 - ✅ Images (external and uploaded)
 - ✅ Dividers
 
-### Best Practices:
-
-1. **Use H1 sparingly**: Only for major section divisions
-2. **H2 for each topic**: Each documentation topic should be an H2
-3. **Clear titles**: Use descriptive H2 titles as they become page names and URLs
-4. **Avoid special characters**: In H2 titles (they're converted to URL slugs)
-5. **Keep it flat**: Don't nest pages in Notion - use headings instead
-6. **Single page structure**: All content should be on ONE Notion page (the root page)
-
 ## Getting started
 
 To get started with this template, first install the npm dependencies:
