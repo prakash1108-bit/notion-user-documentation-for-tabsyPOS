@@ -16,7 +16,7 @@ This project automatically converts your Notion documentation into a beautiful, 
 
 ## Environment Variables (.env)
 
-Create a `.env` file in the root directory with the following required keys:
+Create a `.env` file in the root directory with the following required keys. You can copy the example file provided (`.env.example`) and update the values:
 
 ```bash
 # Required: Your Notion Integration Token
@@ -138,17 +138,6 @@ This feature requires no configuration, and works out of the box by automaticall
 2. **Run Fetch Script**: `npm run fetch-notion` to sync content
 3. **Review Changes**: Check generated files in `src/app/docs/`
 4. **Deploy**: Build and deploy your site with `npm run build` && `npm start`
-
-## Project Structure
-
-```
-src/app/docs/               # Generated documentation pages
-  navigation.json           # Auto-generated navigation structure
-  [topic-name]/
-    page.md                 # Individual topic pages
-scripts/
-  fetch-notion.js          # Script to fetch and convert Notion content
-```
 
 ## Learn more
 
