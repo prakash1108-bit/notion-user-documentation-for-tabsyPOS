@@ -1,12 +1,8 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { navigation } from '@/lib/navigation';
 
 export async function GET() {
   try {
-    const filePath = path.join(process.cwd(), 'src/app/docs/navigation.json');
-    const fileContents = await fs.readFile(filePath, 'utf8');
-    const data = JSON.parse(fileContents);
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify(navigation), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',

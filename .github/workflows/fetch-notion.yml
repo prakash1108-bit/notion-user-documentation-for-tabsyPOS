@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: main
@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '25'
           cache: 'npm'
 
       - name: Install dependencies
@@ -30,10 +30,8 @@ jobs:
       - name: Run Notion fetcher
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+          NOTION_PAGE_ID: ${{ vars.NOTION_PAGE_ID }}
         run: |
-          mkdir -p scripts
-          mkdir -p src/app/docs
           node scripts/fetch-notion.js
 
       - name: Configure Git user
@@ -53,4 +51,3 @@ jobs:
           labels: |
             automated
             notion
-          delete-branch: true
