@@ -26,6 +26,37 @@ NOTION_TOKEN=secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 NOTION_PAGE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
+## GitHub Actions Configuration
+
+This project includes a GitHub Actions workflow that automatically fetches content from Notion and creates a pull request with the updates. To enable this feature, you need to configure the following in your GitHub repository:
+
+### Setting up Secrets and Variables
+
+1. **Navigate to your GitHub repository**
+2. **Go to Settings → Secrets and variables → Actions**
+
+#### Add Secret:
+- Click on **"New repository secret"**
+- **Name**: `NOTION_TOKEN`
+- **Value**: Your Notion Integration Token (e.g., `secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`)
+
+#### Add Variable:
+- Click on the **"Variables"** tab
+- Click on **"New repository variable"**
+- **Name**: `NOTION_PAGE_ID`
+- **Value**: Your Notion page ID (e.g., `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`)
+
+### Running the Workflow
+
+Once configured, you can manually trigger the workflow:
+
+1. Go to **Actions** tab in your repository
+2. Select **"Fetch Notion Data"** workflow
+3. Click **"Run workflow"**
+4. The workflow will fetch the latest content from Notion and create a pull request with the changes
+
+**Note**: The workflow requires `contents: write` and `pull-requests: write` permissions, which are already configured in the workflow file.
+
 ## Ideal Notion Structure
 
 For best results, structure your Notion documentation page as follows:
