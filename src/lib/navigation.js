@@ -46,8 +46,8 @@ export const navigation = [
         "href": "/docs/how-to-use-ai-commands"
       },
       {
-        "title": "Important Notes and Limitations",
-        "href": "/docs/important-notes-and-limitations"
+        "title": "",
+        "href": "/docs/"
       }
     ]
   },
