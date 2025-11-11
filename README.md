@@ -141,4 +141,4 @@ To learn more about the technologies used in this site template, see the followi
 - [Algolia Autocomplete](https://www.algolia.com/doc/ui-libraries/autocomplete/introduction/what-is-autocomplete/) - the official Algolia Autocomplete documentation
 - [FlexSearch](https://github.com/nextapps-de/flexsearch) - the official FlexSearch documentation
 - [Notion API](https://developers.notion.com/) - the official Notion API documentation
-- [Syntax Template](https://tailwindcss.com/plus/templates/syntax) - the Syntax site template
+- [Syntax Template](https://tailwindcss.com/plus/templates/syntax/preview) - the Syntax site template
